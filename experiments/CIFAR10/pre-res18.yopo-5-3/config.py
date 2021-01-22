@@ -23,7 +23,7 @@ class TrainingConfing(TrainingConfigBase):
 
     lib_dir = lib_dir
 
-    num_epochs = 50
+    num_epochs = 36
     val_interval = 1
     weight_decay = 5e-4
 
@@ -32,9 +32,9 @@ class TrainingConfing(TrainingConfigBase):
     sigma = 2 / 255.0
     eps = 8 / 255.0
 
-    create_optimizer = SGDOptimizerMaker(lr =0.05, momentum = 0.9, weight_decay = 5e-4)
-    # create_optimizer = SGDOptimizerMaker(lr =1e-1 * 2 / K, momentum = 0.9, weight_decay = 5e-4)
-    create_lr_scheduler = PieceWiseConstantLrSchedulerMaker(milestones = [25,40], gamma = 0.1)
+    # create_optimizer = SGDOptimizerMaker(lr =0.05, momentum = 0.9, weight_decay = 5e-4)
+    create_optimizer = SGDOptimizerMaker(lr =1e-1 * 2 / K, momentum = 0.9, weight_decay = 5e-4)
+    create_lr_scheduler = PieceWiseConstantLrSchedulerMaker(milestones = [30, 34, 36], gamma = 0.1)
 
     create_loss_function = torch.nn.CrossEntropyLoss
 

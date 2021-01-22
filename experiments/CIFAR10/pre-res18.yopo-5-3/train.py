@@ -37,7 +37,7 @@ lr_scheduler = config.create_lr_scheduler(optimizer)
 Hamiltonian_func = Hamiltonian(net.layer_one, config.weight_decay)
 layer_one_optimizer = optim.SGD(net.layer_one.parameters(), lr = lr_scheduler.get_lr()[0], momentum=0.9, weight_decay=5e-4)
 lyaer_one_optimizer_lr_scheduler = optim.lr_scheduler.MultiStepLR(layer_one_optimizer,
-                                                                  milestones = [25,40], gamma = 0.1)
+                                                                  milestones = [30, 34, 36], gamma = 0.1)
 LayerOneTrainer = FastGradientLayerOneTrainer(Hamiltonian_func, layer_one_optimizer,
                                               config.inner_iters, config.sigma, config.eps)
 
