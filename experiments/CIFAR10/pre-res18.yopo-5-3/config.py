@@ -21,16 +21,22 @@ from training.config import TrainingConfigBase, SGDOptimizerMaker, \
 
 class TrainingConfing(TrainingConfigBase):
 
+    cifar10_mean = (0.4914, 0.4822, 0.4465)
+    cifar10_std = (0.2471, 0.2435, 0.2616)
+
+    mu = torch.tensor(cifar10_mean).view(3,1,1).cuda()
+    std = torch.tensor(cifar10_std).view(3,1,1).cuda()
+
     lib_dir = lib_dir
 
-    num_epochs = 36
+    num_epochs = 50
     val_interval = 2
     weight_decay = 5e-4
 
     inner_iters = 3
     K = 5
-    sigma = 2 / 255.0
-    eps = 8 / 255.0
+    sigma = (2 / 255.0)/std
+    eps = (8 / 255.0)/std
 
     # create_optimizer = SGDOptimizerMaker(lr =1e-1 * 2 / K, momentum = 0.9, weight_decay = 5e-4)
     create_optimizer = SGDOptimizerMaker(lr =0.05, momentum = 0.9, weight_decay = 5e-4)
@@ -45,7 +51,7 @@ class TrainingConfing(TrainingConfigBase):
     create_attack_method = None
 
     create_evaluation_attack_method = \
-        IPGDAttackMethodMaker(eps = 8/255.0, sigma = 2/255.0, nb_iters = 20, norm = np.inf,
+        IPGDAttackMethodMaker(eps = eps, sigma = sigma, nb_iters = 100, norm = np.inf,
                               mean=torch.tensor(
                                   np.array([0]).astype(np.float32)[np.newaxis, :, np.newaxis, np.newaxis]),
                               std=torch.tensor(np.array([1]).astype(np.float32)[np.newaxis, :, np.newaxis, np.newaxis]))
@@ -62,7 +68,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--resume', default=None, type=str, metavar='PATH',
                  help='path to latest checkpoint (default: none)')
-parser.add_argument('-b', '--batch_size', default=256, type=int,
+parser.add_argument('-b', '--batch_size', default=128, type=int,
                  metavar='N', help='mini-batch size')
 parser.add_argument('-d', type=int, default=0, help='Which gpu to use')
 parser.add_argument('-adv_coef', default=1.0, type = float,
