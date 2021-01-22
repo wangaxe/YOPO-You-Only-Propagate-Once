@@ -58,7 +58,8 @@ class FastGradientLayerOneTrainer(object):
         return yofo_inp, eta
 
 
-
+def clamp(X, lower_limit, upper_limit):
+    return torch.max(torch.min(X, upper_limit), lower_limit)
 
 def train_one_epoch(net, batch_generator, optimizer,
                     criterion, LayerOneTrainner, K,
