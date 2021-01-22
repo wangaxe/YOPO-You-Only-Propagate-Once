@@ -31,15 +31,18 @@ class FastGradientLayerOneTrainer(object):
 
         for i in range(self.inner_steps):
             tmp_inp = inp + eta
-            tmp_inp = torch.clamp(tmp_inp, 0, 1)
+            # tmp_inp = torch.clamp(tmp_inp, 0, 1)
+            tmp_inp = clamp(tmp_inp, config.lower_limit, config.upper_limit)
             H = self.Hamiltonian_func(tmp_inp, p)
 
             eta_grad_sign = torch.autograd.grad(H, eta, only_inputs=True, retain_graph=False)[0].sign()
 
             eta = eta - eta_grad_sign * self.sigma
 
-            eta = torch.clamp(eta, -1.0 * self.eps, self.eps)
-            eta = torch.clamp(inp + eta, 0.0, 1.0) - inp
+            # eta = torch.clamp(eta, -1.0 * self.eps, self.eps)
+            # eta = torch.clamp(inp + eta, 0.0, 1.0) - inp
+            eta.data = clamp(eta, -config.eps, config.eps)
+            eta.data[inp.size(0)] = clamp(eta[:inp.size(0)], config.lower_limit - inp, config.upper_limit - inp)
             eta = eta.detach()
             eta.requires_grad_()
             eta.retain_grad()
@@ -86,7 +89,7 @@ def train_one_epoch(net, batch_generator, optimizer,
         eta = torch.zeros_like(data).to(DEVICE)
         for ii in range(len(config.eps)):
             eta[:, ii, :, :].uniform_(-config.eps[ii][0][0].item(), config.eps[ii][0][0].item())
-        eta.data = clamp(config.eps, config.lower_limit - data, config.upper_limit - data)
+        # eta.data = clamp(config.eps, config.lower_limit - data, config.upper_limit - data)
         eta.requires_grad = True
 
 
