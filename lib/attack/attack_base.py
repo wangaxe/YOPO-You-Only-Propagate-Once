@@ -2,6 +2,9 @@ import torch
 import numpy as np
 from abc import ABCMeta, abstractmethod, abstractproperty
 
+def clamp(X, lower_limit, upper_limit):
+    return torch.max(torch.min(X, upper_limit), lower_limit)
+
 class AttackBase(metaclass=ABCMeta):
     @abstractmethod
     def attack(self, net, inp, label, target = None):

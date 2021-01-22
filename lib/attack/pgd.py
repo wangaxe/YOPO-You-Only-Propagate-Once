@@ -13,6 +13,15 @@ if not father_dir in sys.path:
     sys.path.append(father_dir)
 from attack.attack_base import AttackBase, clip_eta
 
+cifar10_mean = (0.4914, 0.4822, 0.4465)
+cifar10_std = (0.2471, 0.2435, 0.2616)
+
+mu = torch.tensor(cifar10_mean).view(3,1,1).cuda()
+std = torch.tensor(cifar10_std).view(3,1,1).cuda()
+
+upper_limit = ((1 - mu)/ std)
+lower_limit = ((0 - mu)/ std)
+
 def clamp(X, lower_limit, upper_limit):
     return torch.max(torch.min(X, upper_limit), lower_limit)
 
@@ -68,16 +77,18 @@ class IPGD(AttackBase):
             grad_sign = torch.autograd.grad(loss, adv_inp,
                                             only_inputs=True, retain_graph = False)[0].sign()
 
-        adv_inp = adv_inp + grad_sign * (self.sigma / self._std)
-        tmp_adv_inp = adv_inp * self._std +  self._mean
+        # adv_inp = adv_inp + grad_sign * (self.sigma / self._std)
+        # tmp_adv_inp = adv_inp * self._std +  self._mean
+        # tmp_inp = inp * self._std + self._mean
+        # tmp_adv_inp = torch.clamp(tmp_adv_inp, 0, 1) ## clip into 0-1
+        # #tmp_adv_inp = (tmp_adv_inp - self._mean) / self._std
+        # tmp_eta = tmp_adv_inp - tmp_inp
+        # tmp_eta = clip_eta(tmp_eta, norm=self.norm, eps=self.eps, DEVICE=self.DEVICE)
+        # eta = tmp_eta/ self._std
 
-        tmp_inp = inp * self._std + self._mean
-        tmp_adv_inp = torch.clamp(tmp_adv_inp, 0, 1) ## clip into 0-1
-        #tmp_adv_inp = (tmp_adv_inp - self._mean) / self._std
-        tmp_eta = tmp_adv_inp - tmp_inp
-        tmp_eta = clip_eta(tmp_eta, norm=self.norm, eps=self.eps, DEVICE=self.DEVICE)
-
-        eta = tmp_eta/ self._std
+        eta = eta + self.sigma * grad_sign
+        eta.data = clamp(eta, -self.eps, self.eps)
+        eta.data[:inp.size(0)] = clamp(eta[:inp.size(0)], lower_limit - inp, upper_limit - inp)
 
         return eta
 
@@ -102,9 +113,9 @@ class IPGD(AttackBase):
 
         #print(eta.max())
         adv_inp = inp + eta
-        tmp_adv_inp = adv_inp * self._std +  self._mean
-        tmp_adv_inp = torch.clamp(tmp_adv_inp, 0, 1)
-        adv_inp = (tmp_adv_inp - self._mean) / self._std
+        # tmp_adv_inp = adv_inp * self._std +  self._mean
+        # tmp_adv_inp = torch.clamp(tmp_adv_inp, 0, 1)
+        # adv_inp = (tmp_adv_inp - self._mean) / self._std
 
         return adv_inp
 
