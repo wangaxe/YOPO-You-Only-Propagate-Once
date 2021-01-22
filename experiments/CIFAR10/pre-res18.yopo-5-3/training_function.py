@@ -82,6 +82,7 @@ def train_one_epoch(net, batch_generator, optimizer,
         # eta = torch.FloatTensor(*data.shape).uniform_(-config.eps, config.eps)
         # eta = eta.to(label.device)
         # eta.requires_grad_()
+        eta = torch.zeros_like(data).to(DEVICE)
         for ii in range(len(config.eps)):
             eta[:, ii, :, :].uniform_(-config.eps[ii][0][0].item(), config.eps[ii][0][0].item())
         eta.data = clamp(config.eps, config.lower_limit - data, config.upper_limit - data)
