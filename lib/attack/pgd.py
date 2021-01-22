@@ -13,6 +13,9 @@ if not father_dir in sys.path:
     sys.path.append(father_dir)
 from attack.attack_base import AttackBase, clip_eta
 
+def clamp(X, lower_limit, upper_limit):
+    return torch.max(torch.min(X, upper_limit), lower_limit)
+
 class IPGD(AttackBase):
     # ImageNet pre-trained mean and std
     # _mean = torch.tensor(np.array([0.485, 0.456, 0.406]).astype(np.float32)[np.newaxis, :, np.newaxis, np.newaxis])
@@ -79,13 +82,16 @@ class IPGD(AttackBase):
         return eta
 
     def attack(self, net, inp, label, target = None):
-
+        
+        eta = torch.zeros_like(inp)
         if self.random_start:
-            eta = torch.FloatTensor(*inp.shape).uniform_(-self.eps, self.eps)
-        else:
-            eta = torch.zeros_like(inp)
+            for ii in range(len(self.eps)):
+                eta[:, ii, :, :].uniform_(-self.eps[ii][0][0].item(), self.eps[ii][0][0].item())
+        eta.requires_grad = True
+        # else:
+        #     eta = torch.zeros_like(inp)
         eta = eta.to(self.DEVICE)
-        eta = (eta - self._mean) / self._std
+        # eta = (eta - self._mean) / self._std
         net.eval()
 
         inp.requires_grad = True

@@ -33,7 +33,7 @@ class TrainingConfing(TrainingConfigBase):
     lib_dir = lib_dir
 
     num_epochs = 50
-    val_interval = 2
+    val_interval = 1
     weight_decay = 5e-4
 
     inner_iters = 3
