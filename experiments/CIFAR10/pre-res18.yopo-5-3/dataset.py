@@ -12,7 +12,7 @@ def create_train_dataset(batch_size = 128, root = '/mnt/storage0_8/torch_dataset
      transforms.RandomCrop(32, padding=4),
      transforms.RandomHorizontalFlip(),
      transforms.ToTensor(),
-     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2471, 0.2435, 0.2616)),
+    #  transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2471, 0.2435, 0.2616)),
     ])
 
     trainset = torchvision.datasets.CIFAR10(root=root, train=True, download=True, transform=transform_train)
@@ -23,7 +23,7 @@ def create_train_dataset(batch_size = 128, root = '/mnt/storage0_8/torch_dataset
 def create_test_dataset(batch_size = 128, root = '/mnt/storage0_8/torch_datasets/cifar-data'):
     transform_test = transforms.Compose([
      transforms.ToTensor(),
-     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2471, 0.2435, 0.2616)),
+    #  transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2471, 0.2435, 0.2616)),
     ])
     testset = torchvision.datasets.CIFAR10(root=root, train=False, download=True, transform=transform_test)
     #testset = torchvision.datasets.MNIST(root=root, train=False, download=True, transform=transform_test)
