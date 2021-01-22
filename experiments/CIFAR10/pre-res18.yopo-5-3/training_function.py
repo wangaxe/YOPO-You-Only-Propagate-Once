@@ -42,7 +42,7 @@ class FastGradientLayerOneTrainer(object):
             # eta = torch.clamp(eta, -1.0 * self.eps, self.eps)
             # eta = torch.clamp(inp + eta, 0.0, 1.0) - inp
             eta.data = clamp(eta, -config.eps, config.eps)
-            eta.data[inp.size(0)] = clamp(eta[:inp.size(0)], config.lower_limit - inp, config.upper_limit - inp)
+            eta.data[:inp.size(0)] = clamp(eta[:inp.size(0)], config.lower_limit - inp, config.upper_limit - inp)
             eta = eta.detach()
             eta.requires_grad_()
             eta.retain_grad()
