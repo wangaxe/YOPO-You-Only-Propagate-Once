@@ -21,15 +21,6 @@ from training.config import TrainingConfigBase, SGDOptimizerMaker, \
 
 class TrainingConfing(TrainingConfigBase):
 
-    cifar10_mean = (0.4914, 0.4822, 0.4465)
-    cifar10_std = (0.2471, 0.2435, 0.2616)
-
-    mu = torch.tensor(cifar10_mean).view(3,1,1).cuda()
-    std = torch.tensor(cifar10_std).view(3,1,1).cuda()
-
-    upper_limit = ((1 - mu)/ std)
-    lower_limit = ((0 - mu)/ std)
-
     lib_dir = lib_dir
 
     num_epochs = 50
@@ -38,11 +29,11 @@ class TrainingConfing(TrainingConfigBase):
 
     inner_iters = 3
     K = 5
-    sigma = (2 / 255.0)/std
-    eps = (8 / 255.0)/std
+    sigma = 2 / 255.0
+    eps = 8 / 255.0
 
-    # create_optimizer = SGDOptimizerMaker(lr =1e-1 * 2 / K, momentum = 0.9, weight_decay = 5e-4)
     create_optimizer = SGDOptimizerMaker(lr =0.05, momentum = 0.9, weight_decay = 5e-4)
+    # create_optimizer = SGDOptimizerMaker(lr =1e-1 * 2 / K, momentum = 0.9, weight_decay = 5e-4)
     create_lr_scheduler = PieceWiseConstantLrSchedulerMaker(milestones = [25,40], gamma = 0.1)
 
     create_loss_function = torch.nn.CrossEntropyLoss
@@ -54,7 +45,7 @@ class TrainingConfing(TrainingConfigBase):
     create_attack_method = None
 
     create_evaluation_attack_method = \
-        IPGDAttackMethodMaker(eps = eps, sigma = sigma, nb_iters = 100, norm = np.inf,
+        IPGDAttackMethodMaker(eps = 8/255.0, sigma = 2/255.0, nb_iters = 20, norm = np.inf,
                               mean=torch.tensor(
                                   np.array([0]).astype(np.float32)[np.newaxis, :, np.newaxis, np.newaxis]),
                               std=torch.tensor(np.array([1]).astype(np.float32)[np.newaxis, :, np.newaxis, np.newaxis]))

@@ -55,7 +55,7 @@ if args.auto_continue:
     args.resume = os.path.join(config.model_dir, 'last.checkpoint')
 if args.resume is not None and os.path.isfile(args.resume):
     now_epoch = load_checkpoint(args.resume, net, optimizer,lr_scheduler)
-best_acc = 0
+
 while True:
     if now_epoch > config.num_epochs:
         break
@@ -68,14 +68,12 @@ while True:
     tb_train_dic = {'Acc':acc, 'YofoAcc':yofoacc}
     print(tb_train_dic)
     writer.add_scalars('Train', tb_train_dic, now_epoch)
-    # if config.val_interval > 0 and now_epoch % config.val_interval == 0:
-    acc, advacc = eval_one_epoch(net, ds_val, DEVICE, EvalAttack)
-    tb_val_dic = {'Acc': acc, 'AdvAcc': advacc}
-    writer.add_scalars('Val', tb_val_dic, now_epoch)
-    if advacc > best_acc:
-        save_checkpoint(now_epoch, net, optimizer, lr_scheduler,
-                    file_name = os.path.join(config.model_dir, 'pre_res_yopo53'))
+    if config.val_interval > 0 and now_epoch % config.val_interval == 0:
+        acc, advacc = eval_one_epoch(net, ds_val, DEVICE, EvalAttack)
+        tb_val_dic = {'Acc': acc, 'AdvAcc': advacc}
+        writer.add_scalars('Val', tb_val_dic, now_epoch)
 
     lr_scheduler.step()
     lyaer_one_optimizer_lr_scheduler.step()
-
+    save_checkpoint(now_epoch, net, optimizer, lr_scheduler,
+                    file_name = os.path.join(config.model_dir, 'epoch-{}.checkpoint'.format(now_epoch)))
